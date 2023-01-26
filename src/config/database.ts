@@ -1,16 +1,16 @@
-import { Client } from 'pg';
+import { Pool, QueryResult } from 'pg';
 import '../pre-start'; // Must be the first import
 import logger from 'jet-logger';
 import EnvVars from '@src/declarations/major/EnvVars';
 
-const client = new Client({
+const pool = new Pool({
   host: EnvVars.db.host,
   database: EnvVars.db.database,
   user: EnvVars.db.user,
   password: EnvVars.db.password,
 });
 
-client.connect((err) => {
+pool.connect((err) => {
   if (err) {
     logger.err(`Connection to Postgres ${EnvVars.db.database} database failed`);
   } else {
@@ -19,3 +19,11 @@ client.connect((err) => {
     );
   }
 });
+
+export const query = (
+  text: string,
+  params: [],
+  callback: (err: Error, result: QueryResult) => void
+) => {
+  return pool.query(text, params, callback);
+};
