@@ -1,77 +1,27 @@
-import { TAll } from 'jet-validator';
+import { db } from '@src/config/database';
+import logger from 'jet-logger';
 
+const createUsersTable = async () => {
+  try {
+    await db.query(
+      'CREATE TABLE IF NOT EXISTS USERS(id SERIAL PRIMARY KEY, user_id uuid UNIQUE, username VARCHAR(20) UNIQUE, email VARCHAR(40) UNIQUE, pwdHash VARCHAR(200), rank SMALLINT, created_at TIMESTAMP, updated_at TIMESTAMP )',
+      []
+    );
+    logger.info('Users table creation was successful');
+  } catch (err) {
+    logger.err('Users table creation was unsuccessful');
+  }
+};
 
-// **** Variables **** //
-
-export enum UserRoles {
-  Standard,
-  Admin,
-}
-
-
-// **** Types **** //
-
-export interface IUser {
+export interface User {
   id: number;
-  name: string;
+  user_id: string;
+  username: string;
   email: string;
   pwdHash?: string;
-  role?: UserRoles;
+  rank: number;
+  created_at: Date;
+  updated_at: Date;
 }
 
-
-// **** Functions **** //
-
-/**
- * Get a new User object.
- */
-function _new(
-  name: string,
-  email: string,
-  role?: UserRoles,
-  pwdHash?: string,
-): IUser {
-  return {
-    id: -1,
-    email,
-    name,
-    role: (role ?? UserRoles.Standard),
-    pwdHash: (pwdHash ?? ''),
-  };
-}
-
-/**
- * Copy a user object.
- */
-function copy(user: IUser): IUser {
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role,
-    pwdHash: user.pwdHash,
-  };
-}
-
-/**
- * See if an object is an instance of User.
- */
-function instanceOf(arg: TAll): boolean {
-  return (
-    !!arg &&
-    typeof arg === 'object' &&
-    'id' in arg &&
-    'email' in arg &&
-    'name' in arg &&
-    'role' in arg
-  );
-}
-
-
-// **** Export default **** //
-
-export default {
-  new: _new,
-  copy,
-  instanceOf,
-} as const;
+export default createUsersTable;
