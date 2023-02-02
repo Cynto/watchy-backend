@@ -10,20 +10,27 @@ const pool = new Pool({
   password: EnvVars.db.password,
 });
 
-pool.connect((err) => {
-  if (err) {
-    logger.err(`Connection to Postgres ${EnvVars.db.database} database failed`);
-  } else {
+const connectToDB = async () => {
+  try {
+    await pool.connect();
     logger.info(
       `Connection to Postgres ${EnvVars.db.database} database was successful`
     );
+  } catch (err) {
+    logger.err(`Connection to Postgres ${EnvVars.db.database} database failed`);
   }
-});
-
-export const query = (
-  text: string,
-  params: [],
-  callback: (err: Error, result: QueryResult) => void
-) => {
-  return pool.query(text, params, callback);
 };
+connectToDB();
+
+const db = {
+  query: async (text: string, params: string[]): Promise<QueryResult> => {
+    const start = Date.now();
+    const res = await pool.query(text, params);
+    const duration = Date.now() - start;
+    logger.info(
+      `executed query ${text} duration: ${duration}, rows: ${res.rowCount}`
+    );
+    return res;
+  },
+};
+export { db };
