@@ -22,6 +22,23 @@ async function getOne(email: string): Promise<User | null | void> {
   }
 }
 
+async function getAll(): Promise<User[] | null | void> {
+  try {
+    const result = await db.query('SELECT * FROM USERS', []);
+    const users = result.rows as User[];
+    if (users[0] !== undefined) {
+      logger.info('Users found successfully');
+      return users;
+    } else {
+      logger.err('No users were found');
+      return null;
+    }
+  } catch (err) {
+    logger.err(err);
+  }
+}
+
 export default {
   getOne,
+  getAll,
 } as const;
