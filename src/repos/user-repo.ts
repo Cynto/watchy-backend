@@ -106,10 +106,24 @@ async function update(user: User): Promise<void> {
   }
 }
 
+async function _delete(user_id: string): Promise<void> {
+  try {
+    await db.query('BEGIN', []);
+    const queryText = 'DELETE FROM Users WHERE user_id = $1';
+    await db.query(queryText, [user_id]);
+    await db.query('COMMIT', []);
+    logger.info(`User with user_id: ${user_id} was successfully deleted`);
+  } catch (e) {
+    await db.query('ROLLBACK', []);
+    logger.err(e);
+  }
+}
+
 export default {
   getOne,
   getAll,
   add,
   persists,
   update,
+  delete: _delete,
 } as const;
