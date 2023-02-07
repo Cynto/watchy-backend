@@ -38,7 +38,28 @@ async function getAll(): Promise<User[] | null | void> {
   }
 }
 
+async function add(user: User): Promise<void> {
+  try {
+    await db.query('BEGIN', []);
+    const queryText =
+      'INSERT INTO Users(user_id, username, email, pwdHash, rank, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7)';
+    await db.query(queryText, [
+      user.user_id,
+      user.username,
+      user.email,
+      user.pwdHash,
+      user.rank.toString(),
+      user.created_at.toString(),
+      user.updated_at.toString(),
+    ]);
+    await db.query('COMMIT', []);
+  } catch (e) {
+    await db.query('ROLLBACK', []);
+  }
+}
+
 export default {
   getOne,
   getAll,
+  add,
 } as const;
