@@ -73,13 +73,36 @@ async function add(user: User): Promise<void> {
       user.username,
       user.email,
       user.pwdHash,
-      user.rank.toString(),
-      user.created_at.toString(),
-      user.updated_at.toString(),
+      user.rank,
+      user.created_at,
+      user.updated_at,
     ]);
     await db.query('COMMIT', []);
+    logger.info(`User with user_id: ${user.user_id} was successfully created`);
   } catch (e) {
     await db.query('ROLLBACK', []);
+    logger.err(e);
+  }
+}
+
+async function update(user: User): Promise<void> {
+  try {
+    await db.query('BEGIN', []);
+    const queryText =
+      'UPDATE Users SET username = $1, email = $2, pwdhash = $3, rank = $4, updated_at = $5 WHERE user_id = $6';
+    await db.query(queryText, [
+      user.username,
+      user.email,
+      user.pwdHash,
+      user.rank,
+      new Date(),
+      user.user_id,
+    ]);
+    await db.query('COMMIT', []);
+    logger.info(`User with user_id: ${user.user_id} was successfully updated`);
+  } catch (e) {
+    await db.query('ROLLBACK', []);
+    logger.err(e);
   }
 }
 
@@ -88,4 +111,5 @@ export default {
   getAll,
   add,
   persists,
+  update,
 } as const;
