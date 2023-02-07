@@ -22,6 +22,31 @@ async function getOne(email: string): Promise<User | null | void> {
   }
 }
 
+// Check if user with user_id exists in users table
+async function persists(user_id: string): Promise<boolean | void> {
+  try {
+    const res = await db.query('SELECT * FROM Users WHERE user_id = $1', [
+      user_id,
+    ]);
+    if (
+      typeof res.rows[0] === 'object' &&
+      'id' in res.rows[0] &&
+      'user_id' in res.rows[0] &&
+      'email' in res.rows[0] &&
+      'username' in res.rows[0] &&
+      'rank' in res.rows[0]
+    ) {
+      logger.info(`User with user_id: ${user_id} found successfully`);
+      return true;
+    } else {
+      logger.info(`User with user_id: ${user_id} was not found`);
+      return false;
+    }
+  } catch (e) {
+    logger.err(e);
+  }
+}
+
 async function getAll(): Promise<User[] | null | void> {
   try {
     const result = await db.query('SELECT * FROM USERS', []);
@@ -62,4 +87,5 @@ export default {
   getOne,
   getAll,
   add,
+  persists,
 } as const;
