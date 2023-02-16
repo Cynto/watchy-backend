@@ -2,10 +2,10 @@ import { db } from '@src/config/database';
 import logger from 'jet-logger';
 import crypto from 'node:crypto';
 
-const createUsersTable = async () => {
+export const createUsersTable = async () => {
   try {
     await db.query(
-      'CREATE TABLE IF NOT EXISTS USERS(id SERIAL PRIMARY KEY, user_id uuid UNIQUE, username VARCHAR(20) UNIQUE, email VARCHAR(40) UNIQUE, pwdHash VARCHAR(200), rank SMALLINT, created_at TIMESTAMP, updated_at TIMESTAMP )',
+      'CREATE TABLE IF NOT EXISTS Users(id SERIAL PRIMARY KEY, user_id uuid UNIQUE, username VARCHAR(20) UNIQUE, email VARCHAR(40) UNIQUE, pwdHash VARCHAR(200), rank SMALLINT, created_at TIMESTAMP, updated_at TIMESTAMP )',
       [],
     );
     logger.info('Users table creation was successful');
@@ -44,7 +44,22 @@ function _new(
   };
 }
 
+/**
+ * See if an object is an instance of User.
+ */
+function instanceOf(arg: unknown): boolean {
+  return (
+    !!arg &&
+    typeof arg === 'object' &&
+    'id' in arg &&
+    'user_id' in arg &&
+    'email' in arg &&
+    'username' in arg &&
+    'rank' in arg
+  );
+}
+
 export default {
   new: _new,
-  createUsersTable,
+  instanceOf,
 } as const;
