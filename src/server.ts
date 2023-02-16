@@ -13,6 +13,7 @@ import HttpStatusCodes from '@src/declarations/major/HttpStatusCodes';
 import { NodeEnvs } from '@src/declarations/enums';
 import { RouteError } from '@src/declarations/classes';
 import '@src/config/database';
+import '@src/models/index';
 
 dotenv.config();
 
@@ -48,7 +49,7 @@ app.use(
     _: Request,
     res: Response,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    next: NextFunction
+    next: NextFunction,
   ) => {
     logger.err(err, true);
     let status = HttpStatusCodes.BAD_REQUEST;
@@ -56,7 +57,7 @@ app.use(
       status = err.status;
     }
     return res.status(status).json({ error: err.message });
-  }
+  },
 );
 
 // **** Export default **** //
