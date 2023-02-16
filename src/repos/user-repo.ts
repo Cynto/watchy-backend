@@ -47,6 +47,7 @@ async function persists(user_id: string): Promise<boolean | void> {
   }
 }
 
+// get all users
 async function getAll(): Promise<User[] | null | void> {
   try {
     const result = await db.query('SELECT * FROM USERS', []);
@@ -63,6 +64,7 @@ async function getAll(): Promise<User[] | null | void> {
   }
 }
 
+// Add a single user
 async function add(user: User): Promise<void> {
   try {
     await db.query('BEGIN', []);
@@ -85,6 +87,7 @@ async function add(user: User): Promise<void> {
   }
 }
 
+// Update a single user
 async function update(user: User): Promise<void> {
   try {
     await db.query('BEGIN', []);
@@ -106,6 +109,7 @@ async function update(user: User): Promise<void> {
   }
 }
 
+// Delete a single user
 async function _delete(user_id: string): Promise<void> {
   try {
     await db.query('BEGIN', []);
