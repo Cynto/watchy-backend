@@ -1,4 +1,5 @@
 import { newDb } from 'pg-mem';
+import '../../src/pre-start';
 import EnvVars from '@src/declarations/major/EnvVars';
 import logger from 'jet-logger';
 import { PoolClient, QueryResult } from 'pg';
@@ -7,12 +8,7 @@ import { PoolClient, QueryResult } from 'pg';
 const { Pool } = newDb().adapters.createPg();
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-const pool = new Pool({
-  database: EnvVars.db.database,
-  user: EnvVars.db.user,
-  password: EnvVars.db.password,
-}) as PoolClient;
-
+const pool = new Pool() as PoolClient;
 const connectToDB = async () => {
   try {
     await pool.connect();
