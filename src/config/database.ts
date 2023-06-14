@@ -14,7 +14,7 @@ const connectToDB = async () => {
   try {
     await pool.connect();
     logger.info(
-      `Connection to Postgres ${EnvVars.db.database} database was successful`
+      `Connection to Postgres ${EnvVars.db.database} database was successful`,
     );
   } catch (err) {
     logger.err(`Connection to Postgres ${EnvVars.db.database} database failed`);
@@ -23,12 +23,12 @@ const connectToDB = async () => {
 connectToDB();
 
 const db = {
-  query: async (text: string, params: string[]): Promise<QueryResult> => {
+  query: async (text: string, params: unknown[]): Promise<QueryResult> => {
     const start = Date.now();
     const res = await pool.query(text, params);
     const duration = Date.now() - start;
     logger.info(
-      `executed query ${text} duration: ${duration}, rows: ${res.rowCount}`
+      `executed query ${text} duration: ${duration}, rows: ${res.rowCount}`,
     );
     return res;
   },
