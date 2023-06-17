@@ -11,10 +11,13 @@ import HttpStatusCodes from '@src/declarations/major/HttpStatusCodes';
 import { db } from './initialisePostgresDB';
 import createAllTables from '@src/models';
 
-jest.mock('@src/config/database', () => ({
-  db: mockDB,
-}));
-var mockDB = db;
+jest.mock('@src/config/database', () => {
+  return {
+    db: {
+      query: () => db.query,
+    },
+  };
+});
 
 const app = express();
 
@@ -29,5 +32,10 @@ describe('User Routes', () => {
     await createAllTables();
   });
 
-  it('POST /users', async () => {});
+  describe('GET /users', () => {
+    it('should return 401 ', async () => {
+      const res = await request(app).get('/api/users/all');
+      console.log(res.body);
+    });
+  });
 });
