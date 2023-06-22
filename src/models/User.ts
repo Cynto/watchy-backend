@@ -5,7 +5,7 @@ import crypto from 'node:crypto';
 export const createUsersTable = async () => {
   try {
     await db.query(
-      'CREATE TABLE IF NOT EXISTS Users(id SERIAL PRIMARY KEY, user_id uuid UNIQUE, username VARCHAR(20) UNIQUE, email VARCHAR(40) UNIQUE, pwdHash VARCHAR(200), rank SMALLINT, created_at TIMESTAMP, updated_at TIMESTAMP )',
+      'CREATE TABLE IF NOT EXISTS Users(id SERIAL PRIMARY KEY, user_id uuid UNIQUE, username VARCHAR(20) UNIQUE, email VARCHAR(40) UNIQUE, pwdHash VARCHAR(200), rank SMALLINT, created_at TIMESTAMP DEFAULT now() NOT NULL, updated_at TIMESTAMP DEFAULT now() NOT NULL)',
       [],
     );
     logger.info('Users table creation was successful');
@@ -24,11 +24,18 @@ export interface User {
   created_at: Date;
   updated_at: Date;
 }
+export interface EditableUser {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword?: string;
+  rank?: number;
+}
 
 function _new(
-  user_id: string,
   username: string,
   email: string,
+  user_id?: string,
   rank?: number,
   pwdHash?: string,
 ): User {
@@ -37,7 +44,7 @@ function _new(
     user_id: crypto.randomUUID(),
     email,
     username,
-    rank: rank ?? 1,
+    rank: rank ?? 2,
     pwdHash: pwdHash ?? '',
     created_at: new Date(),
     updated_at: new Date(),
