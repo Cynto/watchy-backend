@@ -69,15 +69,13 @@ async function add(user: User): Promise<void> {
   try {
     await db.query('BEGIN', []);
     const queryText =
-      'INSERT INTO Users(user_id, username, email, pwdHash, rank, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7)';
+      'INSERT INTO Users(user_id, username, email, pwdHash, rank, created_at, updated_at) VALUES($1, $2, $3, $4, $5, current_timestamp, current_timestamp)';
     await db.query(queryText, [
       user.user_id,
       user.username,
       user.email,
       user.pwdHash,
       user.rank,
-      user.created_at,
-      user.updated_at,
     ]);
     await db.query('COMMIT', []);
     logger.info(`User with user_id: ${user.user_id} was successfully created`);
