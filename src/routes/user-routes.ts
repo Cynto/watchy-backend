@@ -1,9 +1,12 @@
 import HttpStatusCodes from '@src/declarations/major/HttpStatusCodes';
 
 import userService from '@src/services/user-service';
-import { IUser } from '@src/models/User';
+import { EditableUser, User } from '@src/models/User';
 import { IReq, IRes } from './shared/types';
-
+import { validationResult } from 'express-validator';
+import httpStatusCodes from '@src/declarations/major/HttpStatusCodes';
+import pwdUtil from '@src/util/pwd-util';
+import UserF from '@src/models/User';
 
 // **** Variables **** //
 
@@ -15,7 +18,6 @@ const paths = {
   update: '/update',
   delete: '/delete/:id',
 } as const;
-
 
 // **** Functions **** //
 
@@ -30,8 +32,20 @@ async function getAll(_: IReq, res: IRes) {
 /**
  * Add one user.
  */
-async function add(req: IReq<{user: IUser}>, res: IRes) {
-  const { user } = req.body;
+async function add(req: IReq<EditableUser>, res: IRes) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors);
+    return res.status(httpStatusCodes.BAD_REQUEST).end();
+  }
+
+  const user = UserF.new(
+    req.body.username,
+    req.body.email,
+    undefined,
+    undefined,
+    await pwdUtil.getHash(req.body.password),
+  );
   await userService.addOne(user);
   return res.status(HttpStatusCodes.CREATED).end();
 }
@@ -39,7 +53,7 @@ async function add(req: IReq<{user: IUser}>, res: IRes) {
 /**
  * Update one user.
  */
-async function update(req: IReq<{user: IUser}>, res: IRes) {
+async function update(req: IReq<{ user: User }>, res: IRes) {
   const { user } = req.body;
   await userService.updateOne(user);
   return res.status(HttpStatusCodes.OK).end();
@@ -50,10 +64,9 @@ async function update(req: IReq<{user: IUser}>, res: IRes) {
  */
 async function _delete(req: IReq, res: IRes) {
   const id = +req.params.id;
-  await userService.delete(id);
+  // await userService.delete(id);
   return res.status(HttpStatusCodes.OK).end();
 }
-
 
 // **** Export default **** //
 
