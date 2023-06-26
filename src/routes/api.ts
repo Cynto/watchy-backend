@@ -1,8 +1,10 @@
 import { Router } from 'express';
 
 import adminMw from './shared/adminMw';
+import userMw from '@src/routes/shared/userMw';
 import authRoutes from './auth-routes';
 import userRoutes from './user-routes';
+import { validateUserCreation } from '@src/validators/user-validators';
 
 // **** Init **** //
 
@@ -16,7 +18,7 @@ const authRouter = Router();
 authRouter.post(
   authRoutes.paths.login,
   // validation
-  authRoutes.login
+  authRoutes.login,
 );
 
 // Logout user
@@ -30,31 +32,29 @@ apiRouter.use(authRoutes.paths.basePath, authRouter);
 const userRouter = Router();
 
 // Get all users
-userRouter.get(userRoutes.paths.get, userRoutes.getAll);
+userRouter.get(userRoutes.paths.get, adminMw, userRoutes.getAll);
 
 // Add one user
-userRouter.post(
-  userRoutes.paths.add,
-  // validation
-  userRoutes.add
-);
+userRouter.post(userRoutes.paths.add, validateUserCreation, userRoutes.add);
 
 // Update one user
 userRouter.put(
   userRoutes.paths.update,
+  userMw,
   // validation
-  userRoutes.update
+  userRoutes.update,
 );
 
 // Delete one user
 userRouter.delete(
   userRoutes.paths.delete,
+  userMw,
   // validation
-  userRoutes.delete
+  userRoutes.delete,
 );
 
 // Add userRouter
-apiRouter.use(userRoutes.paths.basePath, adminMw, userRouter);
+apiRouter.use(userRoutes.paths.basePath, userRouter);
 
 // **** Export default **** //
 
