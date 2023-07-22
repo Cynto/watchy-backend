@@ -19,10 +19,10 @@ export const validateUserCreation = [
     .withMessage('Password must include at least 8 characters.')
     .trim()
     .escape(),
-  body('confirmPassword')
+  body('passwordConfirm')
     .custom((value, { req }) => {
-      const body = req.body as ReqBody;
-      if (value !== body.password) {
+      const rBody = req.body as ReqBody;
+      if (value !== rBody.password) {
         throw new Error('Passwords do not match.');
       }
       return true;
