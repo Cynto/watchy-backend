@@ -19,7 +19,7 @@ function getAll(): Promise<User[] | null | void> {
 /**
  * Add one user.
  */
-function addOne(user: User): Promise<void> {
+function addOne(user: User): Promise<boolean | Error> {
   return userRepo.add(user);
 }
 
