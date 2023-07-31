@@ -14,8 +14,6 @@ import HttpStatusCodes from '@src/declarations/major/HttpStatusCodes';
 import { NodeEnvs } from '@src/declarations/enums';
 import { RouteError } from '@src/declarations/classes';
 import '@src/config/database';
-import createAllTables from '@src/models';
-createAllTables();
 
 dotenv.config();
 // **** Init express **** //
