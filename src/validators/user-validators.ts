@@ -5,6 +5,7 @@ interface ReqBody {
   email: string;
   password: string;
   confirmPassword: string;
+  dob: Date;
 }
 
 export const validateUserCreation = [
@@ -43,6 +44,24 @@ export const validateUserCreation = [
       }
       return true;
     })
-
+    .escape(),
+  body('dob')
+    .toDate()
+    .custom((value, { req }) => {
+      const rBody = req.body as ReqBody;
+      function isOverThirteen(birthday: Date) {
+        const ageDifMs = Date.now() - birthday.getTime();
+        const ageDate = new Date(ageDifMs);
+        const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+        return age >= 13;
+      }
+      if (rBody.dob) {
+        if (!isOverThirteen(rBody.dob)) {
+          throw new Error(
+            "*We're sorry, but you need to be at least 13 years old to use this site. Please come back when you're old enough!",
+          );
+        } else return true;
+      } else throw new Error('*Please enter a valid date.');
+    })
     .escape(),
 ];
