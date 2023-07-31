@@ -5,10 +5,10 @@ import crypto from 'node:crypto';
 export const createUsersTable = async () => {
   try {
     await db.query(
-      'CREATE TABLE IF NOT EXISTS Users(id SERIAL PRIMARY KEY, user_id uuid UNIQUE, username VARCHAR(20) UNIQUE, email VARCHAR(40) UNIQUE, pwdHash VARCHAR(200), rank SMALLINT, created_at TIMESTAMP DEFAULT now() NOT NULL, updated_at TIMESTAMP DEFAULT now() NOT NULL)',
+      'CREATE TABLE IF NOT EXISTS Users(id SERIAL PRIMARY KEY, user_id uuid UNIQUE, email VARCHAR(254) UNIQUE, username VARCHAR(20) UNIQUE, pwdHash VARCHAR(200), rank SMALLINT, dob TIMESTAMP WITH TIME ZONE, created_at TIMESTAMP DEFAULT now() NOT NULL, updated_at TIMESTAMP DEFAULT now() NOT NULL)',
       [],
     );
-    logger.info('Users table creation was successful');
+    logger.info('Users table was created or already exists');
   } catch (err) {
     logger.err('Users table creation was unsuccessful');
   }
@@ -21,6 +21,7 @@ export interface User {
   email: string;
   pwdHash?: string;
   rank: number;
+  dob: string;
   created_at: Date;
   updated_at: Date;
 }
@@ -30,11 +31,13 @@ export interface EditableUser {
   password: string;
   confirmPassword?: string;
   rank?: number;
+  dob: Date;
 }
 
 function _new(
   username: string,
   email: string,
+  dob: Date,
   user_id?: string,
   rank?: number,
   pwdHash?: string,
@@ -45,6 +48,7 @@ function _new(
     email,
     username,
     rank: rank ?? 2,
+    dob: dob.toISOString(),
     pwdHash: pwdHash ?? '',
     created_at: new Date(),
     updated_at: new Date(),
