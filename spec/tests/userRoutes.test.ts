@@ -1,15 +1,7 @@
-import cookieParser from 'cookie-parser';
+import './setup/index';
+import { db } from './setup/initialisePostgresDB';
 import request from 'supertest';
-import express, { Request, Response, NextFunction } from 'express';
-import dotenv from 'dotenv';
-
-import 'express-async-errors';
-
-import BaseRouter from '@src/routes/api';
-import EnvVars from '@src/declarations/major/EnvVars';
-import HttpStatusCodes from '@src/declarations/major/HttpStatusCodes';
-import { db } from './initialisePostgresDB';
-import createAllTables from '@src/models';
+import app from './setup/server';
 
 jest.mock('@src/config/database', () => {
   return {
@@ -19,23 +11,32 @@ jest.mock('@src/config/database', () => {
   };
 });
 
-const app = express();
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser(EnvVars.cookieProps.secret));
-
-app.use('/api', BaseRouter);
+const userPayload = {
+  username: 'test',
+  email: 'test',
+  password: 'testtest1',
+  confirmPassword: 'testtest1',
+};
 
 describe('User Routes', () => {
-  beforeAll(async () => {
-    await createAllTables();
-  });
+  beforeAll(async () => {});
 
-  describe('GET /users', () => {
-    it('should return 401 ', async () => {
+  describe('POST /users/add', () => {});
+  describe('GET /users/all', () => {
+    it('should return 401 and error message if bearer token not present', async () => {
       const res = await request(app).get('/api/users/all');
-      console.log(res.body);
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.error).toEqual('JWT not present in signed cookie.');
+    });
+
+    it('should return 401 and error message if token is not valid', async () => {
+      const res = await request(app).get('/api/users/all').set({
+        Authorization: 'Bearer 1',
+      });
+
+      expect(res.statusCode).toEqual(401);
+      expect(res.body.error).toEqual('JWT not present in signed cookie.');
     });
   });
 });
