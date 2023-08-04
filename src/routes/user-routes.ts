@@ -7,7 +7,7 @@ import { validationResult } from 'express-validator';
 import httpStatusCodes from '@src/declarations/major/HttpStatusCodes';
 import pwdUtil from '@src/util/pwd-util';
 import UserF from '@src/models/User';
-import { PgError } from '@src/types/pg';
+import { PgMemError, PgQueryError } from '@src/types/pg';
 
 // **** Variables **** //
 
@@ -39,7 +39,7 @@ async function add(req: IReq<EditableUser>, res: IRes) {
   // If there are validation errors, log them and return a Bad Request response with the errors.
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log(errors);
+    // console.log(errors);
     return res.status(httpStatusCodes.BAD_REQUEST).json(errors).end();
   }
 
@@ -48,6 +48,7 @@ async function add(req: IReq<EditableUser>, res: IRes) {
   const user = UserF.new(
     req.body.username,
     req.body.email,
+    new Date(req.body.dob),
     undefined,
     undefined,
     await pwdUtil.getHash(req.body.password),
@@ -62,10 +63,19 @@ async function add(req: IReq<EditableUser>, res: IRes) {
   if (queryRes === true) {
     return res.status(HttpStatusCodes.CREATED).end();
   } else {
+    let queryErr;
     // If there was an error while adding the user, handle it here.
-
     if (queryRes instanceof Error && 'code' in queryRes) {
-      const queryErr = queryRes as PgError;
+      // If it has a data property, then it is a pg-mem error, used for testing
+      if ('data' in queryRes) {
+        const pgMemError = queryRes as PgMemError;
+        queryErr = {
+          ...queryRes,
+          detail: pgMemError.data.details,
+        };
+        // Otherwise, it's just a PG query error
+      } else queryErr = queryRes as PgQueryError;
+
       // Check if the error is a unique constraint violation (23505 error code).
       // If the unique constraint violation is for the 'username' field, return a Conflict response
       // with a specific error message for the username field.
@@ -84,7 +94,10 @@ async function add(req: IReq<EditableUser>, res: IRes) {
             ],
           })
           .end();
-      } else {
+      } else if (
+        queryErr.code === '23505' &&
+        queryErr.detail.includes('email')
+      ) {
         // If the unique constraint violation is for the 'email' field, return a Conflict response
         // with a specific error message for the email field.
         return res
