@@ -15,7 +15,7 @@ import commandLineArgs from 'command-line-args';
 
 const options = commandLineArgs([
   {
-    name: 'env',
+    name: 'node_env',
     alias: 'e',
     defaultValue: 'development',
     type: String,
@@ -35,12 +35,16 @@ const options = commandLineArgs([
   {
     name: 'verbose',
   },
+  {
+    name: 'coverage',
+    type: Boolean,
+  },
 ]);
 
 // **** Set the env file **** //
 
 const result2 = dotenv.config({
-  path: path.join(__dirname, `../env/${String(options.env)}.env`),
+  path: path.join(__dirname, `../env/${String(options.node_env)}.env`),
 });
 
 if (result2.error) {
