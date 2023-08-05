@@ -5,7 +5,7 @@
     "build": "npx ts-node build.ts",
     "lint": "npx eslint --ext .ts src/",
     "lint:tests": "npx eslint --ext .ts spec/",
-    "start": "node -r module-alias/register ./dist --env=production",
+    "start": "node -r module-alias/register ./dist --node_env=production",
     "dev": "nodemon",
     "test": "jest",
     "test:no-reloading": "npx ts-node --files -r tsconfig-paths/register ./spec"
