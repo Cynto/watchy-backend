@@ -69,7 +69,7 @@ async function add(user: User): Promise<boolean | Error> {
   try {
     await db.query('BEGIN', []);
     const queryText =
-      'INSERT INTO Users(user_id, email, username,  pwdHash, rank, dob, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, current_timestamp, current_timestamp)';
+      'INSERT INTO Users(user_id, email, username,  pwd_hash, rank, dob, verified_email, privacy_settings, last_login, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, current_timestamp, current_timestamp, current_timestamp)';
     const res = await db.query(queryText, [
       user.user_id,
       user.email,
@@ -77,6 +77,8 @@ async function add(user: User): Promise<boolean | Error> {
       user.pwdHash,
       user.rank,
       user.dob,
+      user.verified_email,
+      user.privacy_settings,
     ]);
     await db.query('COMMIT', []);
     if (res.rowCount > 0) {
