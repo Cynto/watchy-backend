@@ -28,10 +28,10 @@ const db = {
 const createDatabase = async (dbName: string) => {
   try {
     // Connect to the 'postgres' database to issue the CREATE DATABASE command
-    const client = await pool.connect();
+
     const createDbQuery = `CREATE DATABASE ${dbName}`;
-    await client.query(createDbQuery);
-    client.release();
+    await pool.query(createDbQuery);
+
     logger.info(`Database '${dbName}' created successfully.`);
   } catch (error) {
     logger.err(error);
