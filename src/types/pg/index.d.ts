@@ -17,3 +17,16 @@ export interface PgQueryError extends Error {
   line: string;
   routine: string;
 }
+
+export interface PgMemError extends Error {
+  data: {
+    error: string;
+    details: string;
+    code: string;
+  };
+  code: string;
+  location: {
+    start: number;
+    end: number;
+  };
+}
