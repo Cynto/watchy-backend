@@ -11,8 +11,8 @@ interface ReqBody {
 export const validateUserCreation = [
   body('username')
     .trim()
-    .isLength({ min: 3, max: 16 })
-    .withMessage('*Username must contain between 3 to 16 characters.')
+    .isLength({ min: 3, max: 20 })
+    .withMessage('*Username must contain between 3 to 20 characters.')
     .matches(/^(?=.*[a-zA-Z])[a-zA-Z0-9_-]+$/)
     .withMessage(
       '*Usernames must include at least one letter and can contain numbers, hyphens, and underscores.',
