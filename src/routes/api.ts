@@ -4,7 +4,10 @@ import adminMw from './shared/adminMw';
 import userMw from '@src/routes/shared/userMw';
 import authRoutes from './auth-routes';
 import userRoutes from './user-routes';
-import { validateUserCreation } from '@src/validators/user-validators';
+import {
+  validateUserCreation,
+  validateLogin,
+} from '@src/validators/user-validators';
 
 // **** Init **** //
 
@@ -31,11 +34,11 @@ apiRouter.use(authRoutes.paths.basePath, authRouter);
 
 const userRouter = Router();
 
-// Get all users
-userRouter.get(userRoutes.paths.get, adminMw, userRoutes.getAll);
-
 // Add one user
 userRouter.post(userRoutes.paths.add, validateUserCreation, userRoutes.add);
+
+// Login a user
+userRouter.post(userRoutes.paths.login, validateLogin, userRoutes.login);
 
 // Update one user
 userRouter.put(
