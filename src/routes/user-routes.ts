@@ -14,10 +14,10 @@ import { PgMemError, PgQueryError } from '@src/types/pg';
 // Paths
 const paths = {
   basePath: '/users',
-  get: '/all',
-  add: '/add',
-  update: '/update',
-  delete: '/delete/:id',
+  add: '',
+  login: '/login',
+  update: '/:id',
+  delete: '/:id',
 } as const;
 
 // **** Functions **** //
@@ -28,6 +28,12 @@ const paths = {
 async function getAll(_: IReq, res: IRes) {
   const users = await userService.getAll();
   return res.status(HttpStatusCodes.OK).json({ users });
+}
+
+async function login(req: IReq, res: IRes) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+  }
 }
 
 // This function handles the addition of a new user to the system.
@@ -141,8 +147,8 @@ async function _delete(req: IReq, res: IRes) {
 
 export default {
   paths,
-  getAll,
   add,
+  login,
   update,
   delete: _delete,
 } as const;
