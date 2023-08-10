@@ -1,11 +1,18 @@
 import { body } from 'express-validator';
+import { errors } from '@src/services/auth-service';
 
-interface ReqBody {
+interface UserCreationBody {
   username: string;
   email: string;
   password: string;
   confirmPassword: string;
   dob: Date;
+}
+
+interface UserLoginBody {
+  username?: string;
+  email?: string;
+  password: string;
 }
 
 export const validateUserCreation = [
@@ -36,7 +43,7 @@ export const validateUserCreation = [
   body('passwordConfirm')
     .trim()
     .custom((value, { req }) => {
-      const rBody = req.body as ReqBody;
+      const rBody = req.body as UserCreationBody;
       if (value !== rBody.password) {
         throw new Error(
           '*Password confirmation does not match the original password. Please ensure both passwords are the same.',
@@ -48,7 +55,7 @@ export const validateUserCreation = [
   body('dob')
     .toDate()
     .custom((value, { req }) => {
-      const rBody = req.body as ReqBody;
+      const rBody = req.body as UserCreationBody;
       function isOverThirteen(birthday: Date) {
         const ageDifMs = Date.now() - birthday.getTime();
         const ageDate = new Date(ageDifMs);
@@ -64,4 +71,37 @@ export const validateUserCreation = [
       } else throw new Error('*Please enter a valid date.');
     })
     .escape(),
+];
+
+export const validateLogin = [
+  body('email')
+    .optional()
+    .isEmail()
+    .normalizeEmail()
+    .custom((value, { req }) => {
+      const rBody = req.body as UserLoginBody;
+
+      if (!rBody.email && !rBody.username) {
+        throw new Error('A username or email must be provided.');
+      }
+    })
+    .escape(),
+  body('username')
+    .optional()
+    .trim()
+    .isLength({ min: 3, max: 20 })
+    .withMessage(
+      "We couldn't verify your credentials. Please ensure that your Username/Email and password are entered correctly and try again",
+    )
+    .matches(/^(?=.*[a-zA-Z])[a-zA-Z0-9_-]+$/)
+    .withMessage(
+      "We couldn't verify your credentials. Please ensure that your Username/Email and password are entered correctly and try again",
+    ),
+  body('password')
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&;:])[A-Za-z\d@$!%*?&;:]{8,}$/,
+    )
+    .withMessage(
+      "We couldn't verify your credentials. Please ensure that your Username/Email and password are entered correctly and try again",
+    ),
 ];
