@@ -24,6 +24,16 @@ function addOne(user: User): Promise<boolean | Error> {
 }
 
 /**
+ * * Find a user.
+ */
+function findOne(user: {
+  username: string | null;
+  email: string | null;
+  user_id: string | null;
+}): Promise<{ user: User | null; err: Error | null }> {
+  return userRepo.getOne(user);
+}
+/**
  * Update one user.
  */
 async function updateOne(user: User): Promise<void> {
@@ -52,6 +62,7 @@ async function _delete(user_id: string): Promise<void> {
 export default {
   getAll,
   addOne,
+  findOne,
   updateOne,
   delete: _delete,
 } as const;
