@@ -3,23 +3,47 @@ import { db } from '@src/config/database';
 import logger from 'jet-logger';
 
 // Get one user
-async function getOne(email: string): Promise<User | null | void> {
+async function getOne(user: {
+  username: string | null;
+  email: string | null;
+  user_id: string | null;
+}): Promise<{ user: User | null; err: Error | null }> {
   try {
-    const result = await db.query('SELECT * FROM USERS WHERE email = $1', [
-      email,
-    ]);
-    const user = result.rows[0] as User;
-    if (user !== undefined) {
-      logger.info('User found successfully');
-      return user;
-    } else {
-      logger.err(`Cannot find user with email: ${email}`);
+    let queryText = '';
+    let params: string[] = [''];
 
-      return null;
+    // Determine the appropriate query based on the provided criteria
+    if (user.username) {
+      queryText = 'SELECT * FROM USERS WHERE username = $1';
+      params = [user.username];
+    } else if (user.email) {
+      queryText = 'SELECT * FROM USERS WHERE email = $1';
+      params = [user.email];
+    } else if (user.user_id) {
+      queryText = 'SELECT * FROM USERS WHERE user_id = $1';
+      params = [user.user_id];
+    }
+
+    // Execute the database query
+    const result = await db.query(queryText, params);
+
+    if (result.rows[0] !== undefined) {
+      // User found in the database
+      const userRow = result.rows[0] as User;
+      logger.info('User found successfully');
+      return { user: userRow, err: null };
+    } else {
+      // User not found
+      logger.err(`Cannot find user.`);
+      return { user: null, err: null };
     }
   } catch (err) {
-    logger.err(err);
+    // Handle and return any errors that occur during the process
+    if (err instanceof Error) return { user: null, err };
   }
+
+  // Return null values if no user is found and no errors occurred
+  return { user: null, err: null };
 }
 
 // Check if user with user_id exists in users table
@@ -74,7 +98,7 @@ async function add(user: User): Promise<boolean | Error> {
       user.user_id,
       user.email,
       user.username,
-      user.pwdHash,
+      user.pwd_hash,
       user.rank,
       user.dob,
       user.verified_email,
@@ -106,7 +130,7 @@ async function update(user: User): Promise<void> {
     await db.query(queryText, [
       user.username,
       user.email,
-      user.pwdHash,
+      user.pwd_hash,
       user.rank,
       new Date(),
       user.user_id,
