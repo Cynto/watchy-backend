@@ -17,16 +17,6 @@ const apiRouter = Router();
 
 const authRouter = Router();
 
-// Login user
-authRouter.post(
-  authRoutes.paths.login,
-  // validation
-  authRoutes.login,
-);
-
-// Logout user
-authRouter.get(authRoutes.paths.logout, authRoutes.logout);
-
 // Add authRouter
 apiRouter.use(authRoutes.paths.basePath, authRouter);
 
