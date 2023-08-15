@@ -21,7 +21,7 @@ export interface User {
   user_id: string;
   username: string;
   email: string;
-  pwdHash?: string;
+  pwd_hash: string;
   rank: number;
   dob: string;
   verified_email: boolean;
@@ -48,7 +48,7 @@ function _new(
   dob: Date,
   user_id?: string,
   rank?: number,
-  pwdHash?: string,
+  pwd_hash?: string,
 ): User {
   return {
     id: -1,
@@ -63,7 +63,7 @@ function _new(
       following: true,
     },
     last_login: new Date(),
-    pwdHash: pwdHash ?? '',
+    pwd_hash: pwd_hash ?? '',
     created_at: new Date(),
     updated_at: new Date(),
   };
