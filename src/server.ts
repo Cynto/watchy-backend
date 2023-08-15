@@ -14,6 +14,8 @@ import HttpStatusCodes from '@src/declarations/major/HttpStatusCodes';
 import { NodeEnvs } from '@src/declarations/enums';
 import { RouteError } from '@src/declarations/classes';
 import '@src/config/database';
+import '@src/config/passport-strategies';
+import passport from 'passport';
 
 dotenv.config();
 // **** Init express **** //
@@ -31,6 +33,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(EnvVars.cookieProps.secret));
+app.use(passport.initialize());
 
 // Show routes called in console during development
 if (EnvVars.nodeEnv === NodeEnvs.Dev) {
