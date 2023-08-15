@@ -1,5 +1,4 @@
 import { body } from 'express-validator';
-import { errors } from '@src/services/auth-service';
 
 interface UserCreationBody {
   username: string;
@@ -77,13 +76,12 @@ export const validateLogin = [
   body('email')
     .optional()
     .isEmail()
-    .normalizeEmail()
     .custom((value, { req }) => {
       const rBody = req.body as UserLoginBody;
 
       if (!rBody.email && !rBody.username) {
         throw new Error('A username or email must be provided.');
-      }
+      } else return true;
     })
     .escape(),
   body('username')
