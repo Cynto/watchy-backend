@@ -8,6 +8,11 @@ import httpStatusCodes from '@src/declarations/major/HttpStatusCodes';
 import pwdUtil from '@src/util/pwd-util';
 import UserF from '@src/models/User';
 import { PgMemError, PgQueryError } from '@src/types/pg';
+import passport from 'passport';
+import { NextFunction } from 'express';
+import logger from 'jet-logger';
+import jwt from 'jsonwebtoken';
+import EnvVars from '@src/declarations/major/EnvVars';
 
 // **** Variables **** //
 
@@ -30,10 +35,99 @@ async function getAll(_: IReq, res: IRes) {
   return res.status(HttpStatusCodes.OK).json({ users });
 }
 
-async function login(req: IReq, res: IRes) {
+// This function handles the login process
+function login(
+  req: IReq<{
+    username: string | null;
+    email: string | null;
+    password: string;
+  }>,
+  res: IRes,
+  next: NextFunction,
+) {
+  // Validate the request using express-validator
   const errors = validationResult(req);
+
+  // If there are validation errors, respond with an error message
   if (!errors.isEmpty()) {
+    return res
+      .status(httpStatusCodes.UNAUTHORIZED)
+      .json({
+        status: 401,
+        errors: [
+          {
+            type: 'field',
+            msg: "We couldn't verify your credentials. Please ensure that your Username/Email and password are entered correctly and try again",
+            path: 'username/email/password',
+            location: 'body',
+          },
+        ],
+      })
+      .end();
   }
+
+  // Authenticate the user using passport
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  passport.authenticate(
+    // Determine whether to use 'email' or 'username' strategy based on the request
+    req.body.email ? 'email' : 'username',
+    { session: false },
+    (err: Error, user: User) => {
+      if (err) {
+        // Pass any authentication error to the error handler middleware
+        next(err);
+      }
+      if (!user) {
+        // If authentication was unsuccessful, respond with an error message
+        return res
+          .status(httpStatusCodes.UNAUTHORIZED)
+          .json({
+            status: 401,
+            errors: [
+              {
+                type: 'field',
+                msg: "We couldn't verify your credentials. Please ensure that your Username/Email and password are entered correctly and try again",
+                path: 'username/email/password',
+                location: 'body',
+              },
+            ],
+          })
+          .end();
+      }
+      // Log the user in by creating a JWT and responding with user data and the token
+      req.login(user, { session: false }, (err) => {
+        if (err) {
+          return next(err);
+        }
+        logger.info(
+          `Login for user with user_id: ${user.user_id} was successful`,
+        );
+        const payload = {
+          user_id: user.user_id,
+          rank: user.rank,
+          username: user.username,
+        };
+        // Generate JWT
+        const token = jwt.sign(payload, EnvVars.jwt.secret, {
+          expiresIn: '182d',
+        });
+        return res
+          .status(httpStatusCodes.OK)
+          .json({
+            user: {
+              user_id: user.user_id,
+              rank: user.rank,
+              username: user.username,
+              dob: user.dob,
+              verified_email: user.verified_email,
+              privacy_settings: user.privacy_settings,
+            },
+            token,
+          })
+          .end();
+      });
+    },
+  )(req, res, next); // Call the passport.authenticate middleware with the request, response, and next function
 }
 
 // This function handles the addition of a new user to the system.
