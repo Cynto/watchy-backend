@@ -37,7 +37,7 @@ const createNewLocalStrategy = (emailOrUsername: string) => {
 
       if (!user) {
         // No user with that email or username
-        return done(null, false, { message: 'Incorrect email or username.' });
+        return done(null, false, { message: '404' });
       }
 
       // Compare the provided password with the stored password hash
@@ -50,7 +50,7 @@ const createNewLocalStrategy = (emailOrUsername: string) => {
           return done(null, user);
         } else {
           // Passwords do not match
-          return done(null, false, { message: 'Incorrect password.' });
+          return done(null, false, { message: '401' });
         }
       });
     },

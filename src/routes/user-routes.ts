@@ -51,9 +51,9 @@ function login(
   // If there are validation errors, respond with an error message
   if (!errors.isEmpty()) {
     return res
-      .status(httpStatusCodes.UNAUTHORIZED)
+      .status(httpStatusCodes.BAD_REQUEST)
       .json({
-        status: 401,
+        status: 400,
         errors: [
           {
             type: 'field',
@@ -72,15 +72,30 @@ function login(
     // Determine whether to use 'email' or 'username' strategy based on the request
     req.body.email ? 'email' : 'username',
     { session: false },
-    (err: Error, user: User) => {
+    (err: Error, user: User, info: string) => {
       if (err) {
         // Pass any authentication error to the error handler middleware
         next(err);
       }
-      if (!user) {
+      if (!user && Number(info) === 404) {
         // If authentication was unsuccessful, respond with an error message
         return res
-          .status(httpStatusCodes.UNAUTHORIZED)
+          .status(httpStatusCodes.NOT_FOUND)
+          .json({
+            status: 404,
+            errors: [
+              {
+                type: 'field',
+                msg: "We couldn't verify your credentials. Please ensure that your Username/Email and password are entered correctly and try again",
+                path: 'username/email/password',
+                location: 'body',
+              },
+            ],
+          })
+          .end();
+      } else if (!user && Number(info) === 401) {
+        return res
+          .status(httpStatusCodes.NOT_FOUND)
           .json({
             status: 401,
             errors: [

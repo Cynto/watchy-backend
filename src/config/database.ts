@@ -31,6 +31,7 @@ const createDatabase = async (dbName: string) => {
 
     const createDbQuery = `CREATE DATABASE ${dbName}`;
     await pool.query(createDbQuery);
+    await db.query('CREATE EXTENSION IF NOT EXISTS citext;', []);
 
     logger.info(`Database '${dbName}' created successfully.`);
   } catch (error) {

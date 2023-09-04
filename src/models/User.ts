@@ -4,7 +4,6 @@ import crypto from 'node:crypto';
 
 export const createUsersTable = async () => {
   try {
-    await db.query('CREATE EXTENSION IF NOT EXISTS citext;', []);
     await db.query(
       'CREATE TABLE IF NOT EXISTS Users(id SERIAL PRIMARY KEY, user_id uuid UNIQUE, email CITEXT UNIQUE, username CITEXT UNIQUE, pwd_hash VARCHAR(200), rank SMALLINT, dob TIMESTAMP WITH TIME ZONE, verified_email BOOLEAN, privacy_settings jsonb, last_login TIMESTAMP WITH TIME ZONE, created_at TIMESTAMP DEFAULT now() NOT NULL, updated_at TIMESTAMP DEFAULT now() NOT NULL)',
       [],
